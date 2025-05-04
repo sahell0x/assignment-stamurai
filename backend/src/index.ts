@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 dotenv.config();
 import { Request, Response, NextFunction } from "express";
+import authRoutes from "./routes/authRoutes";
 
 const app = express();
 const port: number = Number(process.env.PORT) || 3000;
@@ -20,7 +21,6 @@ app.use(
 
 // app.use(cors({ origin: '*' }));
 
-app.use(express.json({ limit: "5mb" }));
 
 app.use(cookieParser());
 app.use(express.json());
@@ -29,6 +29,7 @@ app.get("/helloworld", (req, res) => {
   res.send("Hello World!");
 });
 
+app.use("/api/auth",authRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(err.status || 500).json({

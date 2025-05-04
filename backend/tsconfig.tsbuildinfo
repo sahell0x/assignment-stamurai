@@ -1,1 +1,1 @@
-{"root":["./src/index.ts"],"version":"5.6.3"}
+{"root":["./src/index.ts","./src/controllers/registerController.ts","./src/db_models/userModel.ts","./src/middlewares/loginMIddleware.ts","./src/middlewares/registerMiddleware.ts","./src/routes/authRoutes.ts","./src/routes/taskRoutes.ts","./src/zod_types/loginType.ts","./src/zod_types/registerType.ts"],"version":"5.6.3"}
