@@ -1,4 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import apiClient from "../lib/api-client";
+import { LOGIN_ROUTE, LOGOUT_ROUTE, REGISTER_ROUTE, USER_ROUTE } from "../utils/constant";
+import toast from "react-hot-toast";
 
 interface User {
   id: string;
@@ -20,7 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -32,65 +35,88 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setTimeout(() => {
-      setLoading(false);
 
-    }, 5000);
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await apiClient.get(USER_ROUTE, {
+          withCredentials: true,
+        });
+
+        if (response.status === 200) {
+          const userData: User = response.data as User;
+          setUser(userData);
+        }
+      } catch {
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
-  
+
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-            if (
-        (email === 'demo@example.com' && password === 'password123') ||
-        email.includes('test') || 
-        email.includes('admin')
-      ) {
-        const newUser = {
-          id: '123',
-          name: email.split('@')[0],
-          email
-        };
-        
-        setUser(newUser);
-        localStorage.setItem('user', JSON.stringify(newUser));
+      const response = await apiClient.post(
+        LOGIN_ROUTE,
+        { email, password },
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        const userData: User = response.data as User;
+        setUser(userData);
         return true;
       }
-      
+
       return false;
     } catch (error) {
-      console.error('Login error:', error);
+      toast.error("Wrong email or password");
       return false;
     }
   };
-  
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+
+  const register = async (
+    name: string,
+    email: string,
+    password: string
+  ): Promise<boolean> => {
     try {
-      const newUser = {
-        id: Date.now().toString(),
-        name,
-        email
-      };
-      
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      const response = await apiClient.post(
+        REGISTER_ROUTE,
+        { name, email, password },
+        { withCredentials: true }
+      );
+
+      if (response.status === 201) {
+        const userData: User = response.data as User;
+        setUser(userData);
+      }
+
       return true;
-    } catch (error) {
-      console.error('Registration error:', error);
+    } catch (error:any) {
+      if(error.status === 409){
+        toast.error("Emial is already in use.");
+      }else{
+        toast.error("Somthing wents wrong please try again.");
+
+      }
+
       return false;
     }
   };
-  
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+
+  const logout =async () => {
+   try{
+    const response = await apiClient.post(LOGOUT_ROUTE,{},{withCredentials:true});
+    if(response.status === 200){
+      setUser(null);
+      toast.success("Logout successfully.");
+    }
+   }catch{
+    toast.error("Somthing wents wrong try again.");
+   }
+    
   };
-  
+
   return (
     <AuthContext.Provider
       value={{
@@ -99,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loading,
         login,
         register,
-        logout
+        logout,
       }}
     >
       {children}
