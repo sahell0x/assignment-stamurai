@@ -6,6 +6,7 @@ import cors from "cors";
 dotenv.config();
 import { Request, Response, NextFunction } from "express";
 import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
 
 const app = express();
 const port: number = Number(process.env.PORT) || 3000;
@@ -30,6 +31,7 @@ app.get("/helloworld", (req, res) => {
 });
 
 app.use("/api/auth",authRoutes);
+app.use("/api",userRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(err.status || 500).json({
