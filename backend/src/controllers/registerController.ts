@@ -43,6 +43,7 @@ const registerController = async (req: Request, res: Response): Promise<any> => 
       return res.status(201).json({
         email: user.email,
         id: user._id,
+        name:user.name,
       });
     }
 
