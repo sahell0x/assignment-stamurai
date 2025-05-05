@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import apiClient from "../lib/api-client";
-import { LOGIN_ROUTE, LOGOUT_ROUTE, REGISTER_ROUTE, USER_ROUTE } from "../utils/constant";
+import {
+  LOGIN_ROUTE,
+  LOGOUT_ROUTE,
+  REGISTER_ROUTE,
+  USER_ROUTE,
+} from "../utils/constant";
 import toast from "react-hot-toast";
 
 interface User {
@@ -43,8 +48,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           withCredentials: true,
         });
 
+
+
         if (response.status === 200) {
           const userData: User = response.data as User;
+          console.log(userData);
+
           setUser(userData);
         }
       } catch {
@@ -92,29 +101,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       return true;
-    } catch (error:any) {
-      if(error.status === 409){
+    } catch (error: any) {
+      if (error.status === 409) {
         toast.error("Emial is already in use.");
-      }else{
+      } else {
         toast.error("Somthing wents wrong please try again.");
-
       }
 
       return false;
     }
   };
 
-  const logout =async () => {
-   try{
-    const response = await apiClient.post(LOGOUT_ROUTE,{},{withCredentials:true});
-    if(response.status === 200){
-      setUser(null);
-      toast.success("Logout successfully.");
+  const logout = async () => {
+    try {
+      const response = await apiClient.post(
+        LOGOUT_ROUTE,
+        {},
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        setUser(null);
+        toast.success("Logout successfully.");
+      }
+    } catch {
+      toast.error("Somthing wents wrong try again.");
     }
-   }catch{
-    toast.error("Somthing wents wrong try again.");
-   }
-    
   };
 
   return (

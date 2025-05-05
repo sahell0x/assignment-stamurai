@@ -1,55 +1,58 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { CheckCircle2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { CheckCircle2 } from "lucide-react";
+import toast from "react-hot-toast";
+import passwordValidator from "../utils/passwordValidator";
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name || !email || !password || !confirmPassword) {
-    toast.error('Please fill in all fields');
+      toast.error("Please fill in all fields");
       return;
     }
-    
+
     if (password !== confirmPassword) {
-     toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       return;
     }
-    
-    if (password.length < 8) {
-      toast.error('Password must be at least 8 characters');
+
+    if (!passwordValidator(password)) {
+      toast.error(
+        "Password must be at least 8 characters long and include lowercase, uppercase, and special characters."
+      );
       return;
     }
-    
+
     try {
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const success = await register(name, email, password);
-      
+
       if (success) {
-        toast.success('Registration successful');
-        navigate('/dashboard');
+        toast.success("Registration successful");
+        navigate("/dashboard");
       } else {
         toast.error("Registration failed. Email may already be in use.");
       }
     } catch (error) {
-      toast.error('Registration failed. Please try again.');
+      toast.error("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -61,17 +64,22 @@ const Register = () => {
             Create a new account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+            Or{" "}
+            <Link
+              to="/login"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
               sign in to your account
             </Link>
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="name" className="sr-only">Full name</label>
+              <label htmlFor="name" className="sr-only">
+                Full name
+              </label>
               <input
                 id="name"
                 name="name"
@@ -85,7 +93,9 @@ const Register = () => {
               />
             </div>
             <div>
-              <label htmlFor="email-address" className="sr-only">Email address</label>
+              <label htmlFor="email-address" className="sr-only">
+                Email address
+              </label>
               <input
                 id="email-address"
                 name="email"
@@ -99,7 +109,9 @@ const Register = () => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
               <input
                 id="password"
                 name="password"
@@ -113,7 +125,9 @@ const Register = () => {
               />
             </div>
             <div>
-              <label htmlFor="confirm-password" className="sr-only">Confirm password</label>
+              <label htmlFor="confirm-password" className="sr-only">
+                Confirm password
+              </label>
               <input
                 id="confirm-password"
                 name="confirm-password"
@@ -127,16 +141,16 @@ const Register = () => {
               />
             </div>
           </div>
-          
+
           <div>
             <button
               type="submit"
               disabled={isLoading}
               className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                isLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+                isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
               } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
             >
-              {isLoading ? 'Creating account...' : 'Sign up'}
+              {isLoading ? "Creating account..." : "Sign up"}
             </button>
           </div>
         </form>
