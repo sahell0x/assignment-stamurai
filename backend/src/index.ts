@@ -7,6 +7,7 @@ dotenv.config();
 import { Request, Response, NextFunction } from "express";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
+import taskRoutes from "./routes/taskRoutes";
 
 const app = express();
 const port: number = Number(process.env.PORT) || 3000;
@@ -32,6 +33,7 @@ app.get("/helloworld", (req, res) => {
 
 app.use("/api/auth",authRoutes);
 app.use("/api",userRoutes);
+app.use("/api",taskRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(err.status || 500).json({
