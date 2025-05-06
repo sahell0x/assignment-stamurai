@@ -4,7 +4,7 @@ import z, { string } from "zod";
 const priorityEnum = z.enum(["low", "medium", "high"]);
 const statusEnum = z.enum(["todo", "inProgress", "review", "completed"]);
 
-const resgisterType = z.object({
+const taskType = z.object({
   
     title: z.string(),
     description: z.string().optional(),
@@ -18,4 +18,4 @@ const resgisterType = z.object({
   
 });
 
-export default resgisterType;
+export default taskType;
