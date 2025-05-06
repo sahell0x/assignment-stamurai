@@ -6,21 +6,26 @@ const createTaskController = async (
   res: Response
 ): Promise<any> => {
   try {
-    const userId = req.userId;
+    const task = req.body;
 
-    const userInfo = await Task.create({
-        
-    });
-    if (!userInfo) {
+    task.createdBy = req.userId;
+
+    const response = await Task.create(task);
+    if (!response) {
       return res.status(400).json({
-        message: "bad request user info not found",
+        message: "can't create task",
       });
     }
 
     return res.status(200).json({
-      id: userInfo._id,
-      email: userInfo.email,
-      name:userInfo.name,
+     id: response._id,
+     title: response.title,
+     dueDate:response.dueDate,
+     priority:response.priority,
+     status:response.status,
+     createdBy:response.createdBy,
+     assignedTo:response.assignedTo,
+     assignedToName:response.assignedToName,
     });
   } catch (e) {
     return res.status(500).json({
