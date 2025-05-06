@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import apiClient from '../lib/api-client';
+import { GET_TASKS_ROUTE } from '../utils/constant';
 
 interface Task {
   id: string;
@@ -38,72 +40,22 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   
   useEffect(() => {
-      const sampleTasks: Task[] = [
-        {
-          id: '1',
-          title: 'Create project plan',
-          description: 'Develop a comprehensive project plan including timeline, resources, and deliverables.',
-          dueDate: '2025-04-15',
-          priority: 'high',
-          status: 'inProgress',
-          createdBy: '123',
-          assignedTo: '123',
-          assignedToName: 'Sahil'
-        },
-        {
-          id: '2',
-          title: 'Design user interface',
-          description: 'Create wireframes and mockups for the application user interface.',
-          dueDate: '2025-04-20',
-          priority: 'medium',
-          status: 'todo',
-          createdBy: '456',
-          assignedTo: '123',
-          assignedToName: 'Sahil'
-        },
-        {
-          id: '3',
-          title: 'Implement authentication',
-          description: 'Add user registration, login, and authentication functionality.',
-          dueDate: '2025-04-10',
-          priority: 'high',
-          status: 'review',
-          createdBy: '123',
-          assignedTo: '2',
-          assignedToName: 'Vishal'
-        },
-        {
-          id: '4',
-          title: 'Write documentation',
-          description: 'Create user and developer documentation for the application.',
-          dueDate: '2025-04-30',
-          priority: 'low',
-          status: 'todo',
-          createdBy: '123',
-          assignedTo: '3',
-          assignedToName: 'Govind'
-        },
-        {
-          id: '5',
-          title: 'Test application',
-          description: 'Perform thorough testing of all application features and fix any bugs.',
-          dueDate: '2025-04-25',
-          priority: 'medium',
-          status: 'todo',
-          createdBy: '123',
-          assignedTo: '123',
-          assignedToName: 'Sahil'
-        }
-      ];
       
-      setTasks(sampleTasks);
-      localStorage.setItem('tasks', JSON.stringify(sampleTasks));
+    (
+     async ()=>{
+        try{
+          const response = await apiClient.get(GET_TASKS_ROUTE,{withCredentials:true});
+          console.log(response);
+          if(response.status === 200){
+            setTasks([...response.data as Task[]]);
+          }
+        }catch{};
+
+
+      }
+    )();
     
   }, []);
-  
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
   
   const createTask = (task: Task) => {
     setTasks(prevTasks => [...prevTasks, task]);
