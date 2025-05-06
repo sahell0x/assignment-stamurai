@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTask } from '../context/TaskContext';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import apiClient from '../lib/api-client';
+import { GET_USER_ROUTE } from '../utils/constant';
 
 const CreateTask = () => {
+type Users = {
+  id:string,
+  name:string,
+  email:string
+
+}
+
+
   const navigate = useNavigate();
   const { createTask } = useTask();
   const { user } = useAuth();
@@ -15,12 +25,20 @@ const CreateTask = () => {
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('medium');
   const [assignedTo, setAssignedTo] = useState('');
+  const [users,setUsers] = useState<Users[]>([]);
   
-  const users = [
-    { id: '1', name: 'Sahil' },
-    { id: '2', name: 'Vishal' },
-    { id: '3', name: 'Govind' },
-  ];
+  useEffect(()=>{
+    (async ()=>{
+      try{
+        const response = await apiClient.get(GET_USER_ROUTE,{withCredentials:true});
+        if(response.status === 200){
+          setUsers([...response.data as Users[]]);
+        }
+      }catch(e){
+        console.log(e);
+      }
+    })();
+  },[]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,25 +48,28 @@ const CreateTask = () => {
       return;
     }
     
-    const newTask = {
-      id: Date.now().toString(),
-      title,
-      description,
-      dueDate,
-      priority,
-      status: 'todo',
-      createdBy: user?.id,
-      assignedTo: assignedTo || user?.id,
-      assignedToName: assignedTo 
-        ? users.find(u => u.id === assignedTo)?.name
-        : user?.name
-    };
-    
-    createTask(newTask);
-    
-   toast.success("Task created successfully");
-    
-    navigate('/tasks');
+    try{
+      const newTask = {
+        title,
+        description,
+        dueDate,
+        priority,
+        status: 'todo',
+        createdBy: user?.id,
+        assignedTo: assignedTo || user?.id,
+        assignedToName: assignedTo 
+          ? users.find(u => u.id === assignedTo)?.name
+          : user?.name
+      };
+      
+      createTask(newTask);
+      
+     toast.success("Task created successfully");
+      
+      navigate('/tasks');
+    }catch{
+
+    }
   };
   
   return (

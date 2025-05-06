@@ -38,16 +38,13 @@ const Register = () => {
       setIsLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const success = await register(name, email, password);
+      const success = await register(name.trim(), email.trim(), password);
 
       if (success) {
-        toast.success("Registration successful");
         navigate("/dashboard");
       } else {
-        toast.error("Registration failed. Email may already be in use.");
       }
     } catch (error) {
-      toast.error("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
