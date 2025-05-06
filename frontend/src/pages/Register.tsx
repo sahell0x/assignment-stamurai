@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { CheckCircle2 } from "lucide-react";
@@ -11,8 +11,15 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, user } = useAuth();
   const navigate = useNavigate();
+
+
+  useEffect(()=>{
+      if(user?.id){
+        navigate("/");
+      }
+  },[user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

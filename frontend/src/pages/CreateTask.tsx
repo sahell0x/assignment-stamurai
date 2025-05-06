@@ -35,7 +35,6 @@ type Users = {
           setUsers([...response.data as Users[]]);
         }
       }catch(e){
-        console.log(e);
       }
     })();
   },[]);
