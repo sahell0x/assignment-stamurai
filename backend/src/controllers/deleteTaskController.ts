@@ -8,12 +8,15 @@ const deleteTaskController = async (
   try {
 
     const userId = req.userId;
-    const taskId = req.body.taskId;
+    const taskId = req.query.taskId;
+
+    console.log(userId,taskId);
 
     const task = await Task.findOneAndDelete({$and:[
         {_id:taskId},
         {createdBy:userId}
     ]});
+
 
 
     if(!task){

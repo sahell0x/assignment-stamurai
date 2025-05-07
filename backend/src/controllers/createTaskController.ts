@@ -17,7 +17,7 @@ const createTaskController = async (
       });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
      id: response._id,
      title: response.title,
      dueDate:response.dueDate,
