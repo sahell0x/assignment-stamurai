@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Task from "../db_models/taskModel";
 
-const deleteTaskController = async (
+const updateTaskController = async (
   req: Request,
   res: Response
 ): Promise<any> => {
@@ -9,22 +9,23 @@ const deleteTaskController = async (
 
     const userId = req.userId;
     const taskId = req.body.taskId;
+    const taskBody = req.body.payload;
 
-    const task = await Task.findOneAndDelete({$and:[
+    const task = await Task.findOneAndUpdate({$and:[
         {_id:taskId},
         {createdBy:userId}
-    ]});
+    ]},taskBody);
 
 
     if(!task){
         return res.status(403).json({
-            message:"Cant delete task "
+            message:"Cant update task "
         })
     }
 
 
     return res.status(200).json({
-        message:"Task deleted successfully",
+        message:"Task updated successfully",
     });
   } catch (e) {
     return res.status(500).json({
@@ -33,4 +34,4 @@ const deleteTaskController = async (
   }
 };
 
-export default deleteTaskController;
+export default updateTaskController;
