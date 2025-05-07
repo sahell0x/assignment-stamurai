@@ -16,11 +16,13 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  users:User[] | []
   isAuthenticated: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  setUsers:any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,6 +41,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[] | []>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -137,6 +140,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         login,
         register,
         logout,
+        users,
+        setUsers,
       }}
     >
       {children}

@@ -16,6 +16,11 @@ export const LOGOUT_ROUTE = `${AUTH_ROUTES}/logout`;
 
 export const GET_TASKS_ROUTE = `${USER_BASE_ROUTE}/tasks`;
 
+export const TASKS_ROUTE = `${USER_BASE_ROUTE}/task`;
+
+
+
+
 
 
 

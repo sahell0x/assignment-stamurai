@@ -1,92 +1,108 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTask } from '../context/TaskContext';
-import { useAuth } from '../context/AuthContext';
-import { ArrowLeft } from 'lucide-react';
-import toast from 'react-hot-toast';
-import apiClient from '../lib/api-client';
-import { GET_USER_ROUTE } from '../utils/constant';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTask } from "../context/TaskContext";
+import { useAuth } from "../context/AuthContext";
+import { ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
+import apiClient from "../lib/api-client";
+import { GET_USER_ROUTE, TASKS_ROUTE } from "../utils/constant";
 
 const CreateTask = () => {
-type Users = {
-  id:string,
-  name:string,
-  email:string
-
-}
-
+  type Users = {
+    id: string;
+    name: string;
+    email: string;
+  };
 
   const navigate = useNavigate();
   const { createTask } = useTask();
-  const { user } = useAuth();
-  
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState('medium');
-  const [assignedTo, setAssignedTo] = useState('');
-  const [users,setUsers] = useState<Users[]>([]);
-  
-  useEffect(()=>{
-    (async ()=>{
-      try{
-        const response = await apiClient.get(GET_USER_ROUTE,{withCredentials:true});
-        if(response.status === 200){
-          setUsers([...response.data as Users[]]);
+  const { user, users, setUsers } = useAuth();
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState("medium");
+  const [assignedTo, setAssignedTo] = useState("");
+  const [isCreating,setIsCreating] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await apiClient.get(GET_USER_ROUTE, {
+          withCredentials: true,
+        });
+        if (response.status === 200) {
+          setUsers([...(response.data as Users[])]);
         }
-      }catch(e){
-      }
+      } catch (e) {}
     })();
-  },[]);
-  
-  const handleSubmit = (e: React.FormEvent) => {
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title || !description || !dueDate || !priority) {
       toast.error("Please fill in all required fields");
       return;
     }
-    
-    try{
+
+    try {
+      setIsCreating(true);
       const newTask = {
         title,
         description,
         dueDate,
         priority,
-        status: 'todo',
+        status: "todo",
         createdBy: user?.id,
         assignedTo: assignedTo || user?.id,
-        assignedToName: assignedTo 
-          ? users.find(u => u.id === assignedTo)?.name
-          : user?.name
+        assignedToName: assignedTo
+          ? users.find((u) => u.id === assignedTo)?.name
+          : user?.name,
       };
-      
-      createTask(newTask);
-      
-     toast.success("Task created successfully");
-      
-      navigate('/tasks');
-    }catch{
 
+      const response = await apiClient.post(TASKS_ROUTE, newTask, {
+        withCredentials: true,
+      });
+
+      if (response.status === 201) {
+        createTask({
+          ...(response.data as any),
+        });
+
+        toast.success("Task created successfully");
+
+        navigate("/tasks");
+        return;
+      }
+
+      throw new Error("somthing wents wrong");
+    } catch {
+      toast.error("Cant create task.");
+    }finally{
+      setIsCreating(true);
     }
   };
-  
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <button 
+      <button
         onClick={() => navigate(-1)}
         className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
       >
         <ArrowLeft size={18} className="mr-1" />
         Back
       </button>
-      
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
         <h1 className="text-2xl font-semibold mb-6">Create New Task</h1>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Title <span className="text-red-500">*</span>
             </label>
             <input
@@ -99,9 +115,12 @@ type Users = {
               required
             />
           </div>
-          
+
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Description <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -114,10 +133,13 @@ type Users = {
               required
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="dueDate"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Due Date <span className="text-red-500">*</span>
               </label>
               <input
@@ -129,9 +151,12 @@ type Users = {
                 required
               />
             </div>
-            
+
             <div>
-              <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="priority"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Priority <span className="text-red-500">*</span>
               </label>
               <select
@@ -147,9 +172,12 @@ type Users = {
               </select>
             </div>
           </div>
-          
+
           <div>
-            <label htmlFor="assignedTo" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="assignedTo"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Assign To
             </label>
             <select
@@ -159,21 +187,24 @@ type Users = {
               className="w-full px-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Assign to me</option>
-              {users.map(user => (
-                <option key={user.id} value={user.id}>{user.name}</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
+                </option>
               ))}
             </select>
           </div>
-          
+
           <div className="flex justify-end space-x-4 pt-4">
             <button
               type="button"
-              onClick={() => navigate('/tasks')}
+              onClick={() => navigate("/tasks")}
               className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             <button
+            disabled={isCreating}
               type="submit"
               className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
             >

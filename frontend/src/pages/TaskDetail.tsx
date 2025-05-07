@@ -1,87 +1,113 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useTask } from '../context/TaskContext';
-import { useAuth } from '../context/AuthContext';
-import { Calendar, Flag, Clock, User, ArrowLeft, Trash2, Edit, Save, X } from 'lucide-react';
-import { formatDate } from '../utils/dateUtils';
-import toast from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useTask } from "../context/TaskContext";
+import { useAuth } from "../context/AuthContext";
+import {
+  Calendar,
+  Flag,
+  Clock,
+  User,
+  ArrowLeft,
+  Trash2,
+  Edit,
+  Save,
+  X,
+} from "lucide-react";
+import { formatDate } from "../utils/dateUtils";
+import toast from "react-hot-toast";
+import apiClient from "../lib/api-client";
+import { TASKS_ROUTE } from "../utils/constant";
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { tasks, updateTask, deleteTask } = useTask();
-  const { user } = useAuth();
-  
+  const { user, users } = useAuth();
+
   const [task, setTask] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState<any>({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
-  const users = [
-    { id: '1', name: 'John Doe' },
-    { id: '2', name: 'Jane Smith' },
-    { id: '3', name: 'Mike Johnson' },
-  ];
-  
+
   useEffect(() => {
-    const foundTask = tasks.find(t => t.id === id);
+    const foundTask = tasks.find((t) => t.id === id);
     if (foundTask) {
       setTask(foundTask);
       setEditedTask({ ...foundTask });
     } else {
-      navigate('/tasks');
-      toast.error('Task not found');
+      navigate("/tasks");
+      toast.error("Task not found");
     }
   }, [id, tasks, navigate]);
-  
+
   if (!task) {
     return <div className="p-6">Loading...</div>;
   }
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setEditedTask(prev => ({
+    setEditedTask((prev) => ({
       ...prev,
       [name]: value,
-      assignedToName: name === 'assignedTo' 
-        ? users.find(u => u.id === value)?.name || value
-        : prev.assignedToName
+      assignedToName:
+        name === "assignedTo"
+          ? users?.find((u) => u.id === value)?.name || value
+          : prev.assignedToName,
     }));
   };
-  
+
   const handleSaveEdit = () => {
-    if (!editedTask.title || !editedTask.description || !editedTask.dueDate || !editedTask.priority) {
-      toast.error('Please fill in all required fields');
+    if (
+      !editedTask.title ||
+      !editedTask.description ||
+      !editedTask.dueDate ||
+      !editedTask.priority
+    ) {
+      toast.error("Please fill in all required fields");
       return;
     }
-    
+
     updateTask(task.id, editedTask);
     setTask(editedTask);
     setIsEditing(false);
-    
-   toast.success('Task updated successfully');
+
+    toast.success("Task updated successfully");
   };
-  
-  const handleDelete = () => {
-    deleteTask(task.id);
-    navigate('/tasks');
-    
-    toast.error('Task deleted successfully');
+
+  const handleDelete = async () => {
+    try {
+      const response = await apiClient.delete(`${TASKS_ROUTE}?taskId=${task.id}`, {
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        deleteTask(task.id);
+        navigate("/tasks");
+
+        toast.success("Task deleted successfully");
+      }
+    } catch {
+      toast.error("Cant delete task");
+    }
   };
-  
+
   const statusColors = {
-    todo: 'bg-gray-100 text-gray-800',
-    inProgress: 'bg-blue-100 text-blue-800',
-    review: 'bg-yellow-100 text-yellow-800',
-    completed: 'bg-green-100 text-green-800'
+    todo: "bg-gray-100 text-gray-800",
+    inProgress: "bg-blue-100 text-blue-800",
+    review: "bg-yellow-100 text-yellow-800",
+    completed: "bg-green-100 text-green-800",
   };
-  
+
   const priorityColors = {
-    low: 'text-gray-500',
-    medium: 'text-orange-500',
-    high: 'text-red-500'
+    low: "text-gray-500",
+    medium: "text-orange-500",
+    high: "text-red-500",
   };
-  
+
   const renderReadOnlyView = () => (
     <div className="space-y-6">
       <div className="flex justify-between">
@@ -103,7 +129,7 @@ const TaskDetail = () => {
           </button>
         </div>
       </div>
-      
+
       <div className="flex flex-wrap gap-4">
         <div className="flex items-center text-gray-600">
           <Calendar size={16} className="mr-2" />
@@ -115,25 +141,33 @@ const TaskDetail = () => {
         </div>
         <div className="flex items-center text-gray-600">
           <User size={16} className="mr-2" />
-          <span>Assigned to {task.assignedToName || 'Unassigned'}</span>
+          <span>Assigned to {task.assignedToName || "Unassigned"}</span>
         </div>
         <div className="flex items-center text-gray-600">
           <Clock size={16} className="mr-2" />
-          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[task.status]}`}>
-            {task.status === 'todo' ? 'To Do' : 
-             task.status === 'inProgress' ? 'In Progress' : 
-             task.status === 'review' ? 'Review' : 'Completed'}
+          <span
+            className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              statusColors[task.status]
+            }`}
+          >
+            {task.status === "todo"
+              ? "To Do"
+              : task.status === "inProgress"
+              ? "In Progress"
+              : task.status === "review"
+              ? "Review"
+              : "Completed"}
           </span>
         </div>
       </div>
-      
+
       <div>
         <h2 className="text-lg font-medium mb-2">Description</h2>
         <p className="text-gray-700 whitespace-pre-line">{task.description}</p>
       </div>
     </div>
   );
-  
+
   const renderEditView = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -158,9 +192,12 @@ const TaskDetail = () => {
           </button>
         </div>
       </div>
-      
+
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="title"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Title <span className="text-red-500">*</span>
         </label>
         <input
@@ -173,9 +210,12 @@ const TaskDetail = () => {
           required
         />
       </div>
-      
+
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="description"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Description <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -188,10 +228,13 @@ const TaskDetail = () => {
           required
         />
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="dueDate"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Due Date <span className="text-red-500">*</span>
           </label>
           <input
@@ -204,9 +247,12 @@ const TaskDetail = () => {
             required
           />
         </div>
-        
+
         <div>
-          <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="priority"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Priority <span className="text-red-500">*</span>
           </label>
           <select
@@ -223,10 +269,13 @@ const TaskDetail = () => {
           </select>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="status"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Status <span className="text-red-500">*</span>
           </label>
           <select
@@ -243,9 +292,12 @@ const TaskDetail = () => {
             <option value="completed">Completed</option>
           </select>
         </div>
-        
+
         <div>
-          <label htmlFor="assignedTo" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="assignedTo"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Assign To
           </label>
           <select
@@ -256,34 +308,39 @@ const TaskDetail = () => {
             className="w-full px-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value={user?.id}>Assign to me</option>
-            {users.map(user => (
-              <option key={user.id} value={user.id}>{user.name}</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name}
+              </option>
             ))}
           </select>
         </div>
       </div>
     </div>
   );
-  
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <button 
-        onClick={() => navigate('/tasks')}
+      <button
+        onClick={() => navigate("/tasks")}
         className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
       >
         <ArrowLeft size={18} className="mr-1" />
         Back to Tasks
       </button>
-      
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
         {isEditing ? renderEditView() : renderReadOnlyView()}
       </div>
-      
+
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h2 className="text-xl font-semibold mb-4">Delete Task</h2>
-            <p className="text-gray-700 mb-6">Are you sure you want to delete this task? This action cannot be undone.</p>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete this task? This action cannot be
+              undone.
+            </p>
             <div className="flex justify-end space-x-4">
               <button
                 onClick={() => setShowDeleteConfirm(false)}

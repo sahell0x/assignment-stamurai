@@ -50,8 +50,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
             setTasks([...response.data as Task[]]);
           }
         }catch{};
-
-
       }
     )();
     
