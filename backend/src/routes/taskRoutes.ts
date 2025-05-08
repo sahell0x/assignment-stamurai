@@ -13,6 +13,9 @@ taskRoutes.post("/task",authMiddleware,createTaskMiddleware,createTaskController
 taskRoutes.get("/tasks",authMiddleware,getTasksController);
 taskRoutes.delete("/task",authMiddleware,deleteTaskController);
 taskRoutes.patch("/task",authMiddleware,updateTaskController);
+taskRoutes.patch("/task/status",authMiddleware,);
+
+
 
 
 export default taskRoutes;
