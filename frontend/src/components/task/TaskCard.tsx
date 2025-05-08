@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { useTask } from '../../context/TaskContext';
 import { Calendar, Flag, ArrowRight } from 'lucide-react';
 import { formatDate } from '../../utils/dateUtils';
+import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../lib/api-client';
+import { TASKS_STATUS_UPDATE_ROUTE } from '../../utils/constant';
+import toast from 'react-hot-toast';
 
 interface TaskCardProps {
   task: any;
@@ -10,6 +14,7 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const { updateTaskStatus } = useTask();
+ const   {user} = useAuth();
   const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'completed';
   
   const statusColors = {
@@ -25,8 +30,20 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     high: 'text-red-500'
   };
   
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateTaskStatus(task.id, e.target.value);
+  const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+
+    try{
+      const response = await apiClient.patch(TASKS_STATUS_UPDATE_ROUTE,{taskId:task.id,taskUpdatedStatus:{
+        status:e.target.value
+      }},{withCredentials:true});
+
+      if(response.status === 200){
+        updateTaskStatus(task.id, e.target.value);
+        toast.success("Status updated successfully");
+      }
+    }catch{
+      toast.error("Status update failed");
+    }
   };
   
   return (
@@ -39,12 +56,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         <div className="flex justify-between items-start mb-3">
           <div>
             <h3 className="font-medium text-gray-900 line-clamp-1">{task.title}</h3>
-            <p className="text-sm text-gray-500 mt-1">Assigned to: {task.assignedToName || 'Unassigned'}</p>
+            <p className="text-sm text-gray-500 mt-1">Assigned to: {(task?.assignedTo === user?.id) ? "Me" : task.assignedToName }</p>
           </div>
           <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[task.status] || statusColors.todo}`}>
-            {task.status === 'todo' ? 'To Do' : 
-             task.status === 'inProgress' ? 'In Progress' : 
-             task.status === 'review' ? 'Review' : 'Completed'}
+            {task.status}
           </div>
         </div>
         

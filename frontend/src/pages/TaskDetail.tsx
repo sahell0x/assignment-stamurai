@@ -60,22 +60,34 @@ const TaskDetail = () => {
     }));
   };
 
-  const handleSaveEdit = () => {
-    if (
-      !editedTask.title ||
-      !editedTask.description ||
-      !editedTask.dueDate ||
-      !editedTask.priority
-    ) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
+  const handleSaveEdit = async() => {
+      try{
+        if (
+          !editedTask.title ||
+          !editedTask.description ||
+          !editedTask.dueDate ||
+          !editedTask.priority
+        ) {
+          toast.error("Please fill in all required fields");
+          return;
+        }
 
-    updateTask(task.id, editedTask);
-    setTask(editedTask);
-    setIsEditing(false);
 
-    toast.success("Task updated successfully");
+        const response = await apiClient.patch(TASKS_ROUTE,{taskId:task.id,payload:editedTask},{withCredentials:true});
+
+        if(response.status === 200){
+          updateTask(task.id, editedTask);
+          setTask(editedTask);
+          setIsEditing(false);
+      
+          toast.success("Task updated successfully");
+          return;
+        }
+    
+        throw new Error("somthing wents wrong");
+      }catch{
+        toast.error("Cant save changes");
+      }
   };
 
   const handleDelete = async () => {
@@ -112,22 +124,29 @@ const TaskDetail = () => {
     <div className="space-y-6">
       <div className="flex justify-between">
         <h1 className="text-2xl font-semibold">{task.title}</h1>
-        <div className="flex space-x-2">
+        
+       
+         {
+          (task?.createdBy === user?.id) ? 
+          <div className="flex space-x-2">
           <button
-            onClick={() => setIsEditing(true)}
-            className="p-2 text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100"
-            title="Edit Task"
-          >
-            <Edit size={18} />
-          </button>
+          onClick={() => setIsEditing(true)}
+          className="p-2 text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100"
+          title="Edit Task"
+        >
+          <Edit size={18} />
+        </button>
+
           <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="p-2 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100"
-            title="Delete Task"
-          >
-            <Trash2 size={18} />
-          </button>
-        </div>
+          onClick={() => setShowDeleteConfirm(true)}
+          className="p-2 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100"
+          title="Delete Task"
+        >
+          <Trash2 size={18} />
+        </button> 
+        </div>: ""
+         }
+        
       </div>
 
       <div className="flex flex-wrap gap-4">
@@ -141,7 +160,7 @@ const TaskDetail = () => {
         </div>
         <div className="flex items-center text-gray-600">
           <User size={16} className="mr-2" />
-          <span>Assigned to {task.assignedToName || "Unassigned"}</span>
+          <span>Assigned to {(task?.assignedTo === user?.id) ? "Me" : task.assignedToName }</span>
         </div>
         <div className="flex items-center text-gray-600">
           <Clock size={16} className="mr-2" />

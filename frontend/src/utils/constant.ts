@@ -18,9 +18,7 @@ export const GET_TASKS_ROUTE = `${USER_BASE_ROUTE}/tasks`;
 
 export const TASKS_ROUTE = `${USER_BASE_ROUTE}/task`;
 
-
-
-
-
+export const TASKS_STATUS_UPDATE_ROUTE = `${TASKS_ROUTE}/status`;
+ 
 
 
