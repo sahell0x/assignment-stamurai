@@ -8,6 +8,7 @@ import { Request, Response, NextFunction } from "express";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import taskRoutes from "./routes/taskRoutes";
+import socketSetup from "./socket";
 
 const app = express();
 const port: number = Number(process.env.PORT) || 3000;
@@ -44,6 +45,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 const server = app.listen(port, () => {
   console.log(`server is runnig at port:${port}`);
 });
+
+socketSetup(server);
+
 
 
 mongoose
