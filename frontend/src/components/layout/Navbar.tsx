@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Bell, User, LogOut, Menu } from 'lucide-react';
+import { useRecoilValue } from 'recoil';
+import userInfoAtom from '../../store/userInfoAtom';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const user = useRecoilValue(userInfoAtom);
   
   const handleLogout = () => {
     logout();

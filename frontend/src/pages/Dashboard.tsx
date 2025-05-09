@@ -5,10 +5,11 @@ import { useAuth } from '../context/AuthContext';
 import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useRecoilValue } from 'recoil';
 import tasksAtom from '../store/tasksAtom';
+import userInfoAtom from '../store/userInfoAtom';
 
 const Dashboard = () => {
   const tasks = useRecoilValue(tasksAtom);
-  const { user } = useAuth();
+  const user = useRecoilValue(userInfoAtom);
   const [activeTab, setActiveTab] = useState('assigned');
 
   const assignedTasks = useMemo(

@@ -6,6 +6,8 @@ import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import apiClient from "../lib/api-client";
 import { GET_USER_ROUTE, TASKS_ROUTE } from "../utils/constant";
+import { useRecoilValue } from "recoil";
+import userInfoAtom from "../store/userInfoAtom";
 
 const CreateTask = () => {
   type Users = {
@@ -16,7 +18,9 @@ const CreateTask = () => {
 
   const navigate = useNavigate();
   const { createTask } = useTask();
-  const { user, users, setUsers } = useAuth();
+  const {  users, setUsers } = useAuth();
+  const user = useRecoilValue(userInfoAtom);
+
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

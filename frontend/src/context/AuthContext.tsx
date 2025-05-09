@@ -7,6 +7,8 @@ import {
   USER_ROUTE,
 } from "../utils/constant";
 import toast from "react-hot-toast";
+import { useRecoilState } from "recoil";
+import userInfoAtom from "../store/userInfoAtom";
 
 interface User {
   id: string;
@@ -15,7 +17,6 @@ interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
   users:User[] | []
   isAuthenticated: boolean;
   loading: boolean;
@@ -40,7 +41,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useRecoilState(userInfoAtom);
   const [users, setUsers] = useState<User[] | []>([]);
   const [loading, setLoading] = useState(true);
 
@@ -134,7 +135,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        user,
         isAuthenticated: !!user,
         loading,
         login,

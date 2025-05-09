@@ -19,13 +19,15 @@ import apiClient from "../lib/api-client";
 import { TASKS_ROUTE } from "../utils/constant";
 import { useRecoilValue } from "recoil";
 import tasksAtom from "../store/tasksAtom";
+import userInfoAtom from "../store/userInfoAtom";
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { updateTask, deleteTask } = useTask();
   const tasks = useRecoilValue(tasksAtom);
-  const { user, users } = useAuth();
+  const {  users } = useAuth();
+  const user = useRecoilValue(userInfoAtom);
 
   const [task, setTask] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -99,7 +101,7 @@ const TaskDetail = () => {
       });
 
       if (response.status === 200) {
-        deleteTask(task.id);
+        deleteTask(task.id,task?.assignedTo);
         navigate("/tasks");
 
         toast.success("Task deleted successfully");

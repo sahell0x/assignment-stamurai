@@ -3,12 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useRecoilValue } from "recoil";
+import userInfoAtom from "../store/userInfoAtom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, user } = useAuth();
+  const { login } = useAuth();
+  const user = useRecoilValue(userInfoAtom);
+
   const navigate = useNavigate();
 
   useEffect(() => {

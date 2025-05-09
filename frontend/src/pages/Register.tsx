@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 import passwordValidator from "../utils/passwordValidator";
+import { useRecoilValue } from "recoil";
+import userInfoAtom from "../store/userInfoAtom";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -11,7 +13,9 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { register, user } = useAuth();
+  const { register } = useAuth();
+  const user = useRecoilValue(userInfoAtom);
+
   const navigate = useNavigate();
 
 

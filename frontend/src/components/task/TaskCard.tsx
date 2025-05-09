@@ -7,6 +7,8 @@ import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../lib/api-client';
 import { TASKS_STATUS_UPDATE_ROUTE } from '../../utils/constant';
 import toast from 'react-hot-toast';
+import { useRecoilValue } from 'recoil';
+import userInfoAtom from '../../store/userInfoAtom';
 
 interface TaskCardProps {
   task: any;
@@ -14,7 +16,7 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const { updateTaskStatus } = useTask();
- const   {user} = useAuth();
+  const user = useRecoilValue(userInfoAtom);
   const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'completed';
   
   const statusColors = {
@@ -33,7 +35,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
 
     try{
-      updateTaskStatus(task.id, e.target.value);
+      const eventFor = (user.id === task.createdBy) ? task.assignedTo :task.createdBy;
+      updateTaskStatus(task?.id,eventFor, e.target.value);
       const response = await apiClient.patch(TASKS_STATUS_UPDATE_ROUTE,{taskId:task.id,taskUpdatedStatus:{
         status:e.target.value
       }},{withCredentials:true});

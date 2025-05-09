@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import apiClient from '../lib/api-client';
 import { GET_TASKS_ROUTE } from '../utils/constant';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import tasksAtom from '../store/tasksAtom';
+import userInfoAtom from '../store/userInfoAtom';
+import socket from '../socket';
 
 interface Task {
   id: string;
@@ -19,8 +21,8 @@ interface Task {
 interface TaskContextType {
   createTask: (task: Task) => void;
   updateTask: (id: string, task: Partial<Task>) => void;
-  updateTaskStatus: (id: string, status: string) => void;
-  deleteTask: (id: string) => void;
+  updateTaskStatus: (id: string,eventFor:string, status: string) => void;
+  deleteTask: (id: string,assignedTo:string) => void;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -39,6 +41,7 @@ interface TaskProviderProps {
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [tasks, setTasks] = useRecoilState<any>(tasksAtom);
+  const userInfo = useRecoilValue(userInfoAtom);
 
   useEffect(()=>{
     console.log("tasks:",tasks);
@@ -62,6 +65,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   
   const createTask = (task: Task) => {
     setTasks(prevTasks => [...prevTasks, task]);
+    if(task.assignedTo != userInfo.id){
+      socket.emit("assigned",task);
+    }
   };
   
   const updateTask = (id: string, updatedTask: Partial<Task>) => {
@@ -70,18 +76,23 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         task.id === id ? { ...task, ...updatedTask } : task
       )
     );
+    if(updatedTask?.assignedTo != userInfo?.id){
+      socket.emit("update-task",updatedTask);
+    }
   };
   
-  const updateTaskStatus = (id: string, status: string) => {
+  const updateTaskStatus = (id: string,eventFor:string,status: string) => {
     setTasks(prevTasks => 
       prevTasks.map(task => 
         task.id === id ? { ...task, status: status as Task['status'] } : task
       )
     );
+    socket.emit("status-update",{id,status,eventFor});
   };
   
-  const deleteTask = (id: string) => {
+  const deleteTask = (id: string,assignedTo:string) => {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
+    socket.emit("delete-task",{id,assignedTo});
   };
   
   return (
