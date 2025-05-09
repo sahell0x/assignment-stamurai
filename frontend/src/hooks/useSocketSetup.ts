@@ -3,6 +3,7 @@ import socket from "../socket";
 import { useRecoilState, useRecoilValue } from "recoil";
 import userInfoAtom from "../store/userInfoAtom";
 import tasksAtom from "../store/tasksAtom";
+import toast from "react-hot-toast";
 
 
 
@@ -14,9 +15,14 @@ const useSocketSetup = () => {
   useEffect(() => {
     if (userInfo) {
 
-      const handleAssigned = (task:any)=>{
+      const handleAssigned = (data:any)=>{
+        const task = data.task;
         if(task){
           setTasks(prevTasks => [...prevTasks, task]);
+
+          toast(`${data.createdByName} assigned you a task!`, {
+            icon: '📌',
+          });
         }
       }
 

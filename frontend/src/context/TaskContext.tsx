@@ -66,7 +66,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const createTask = (task: Task) => {
     setTasks(prevTasks => [...prevTasks, task]);
     if(task.assignedTo != userInfo.id){
-      socket.emit("assigned",task);
+      socket.emit("assigned",{task,createdByName:userInfo?.name});
     }
   };
   
