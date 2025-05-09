@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import apiClient from '../lib/api-client';
 import { GET_TASKS_ROUTE } from '../utils/constant';
+import { useRecoilState } from 'recoil';
+import tasksAtom from '../store/tasksAtom';
 
 interface Task {
   id: string;
@@ -15,7 +17,6 @@ interface Task {
 }
 
 interface TaskContextType {
-  tasks: Task[];
   createTask: (task: Task) => void;
   updateTask: (id: string, task: Partial<Task>) => void;
   updateTaskStatus: (id: string, status: string) => void;
@@ -37,7 +38,11 @@ interface TaskProviderProps {
 }
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useRecoilState<any>(tasksAtom);
+
+  useEffect(()=>{
+    console.log("tasks:",tasks);
+  },[tasks]);
   
   useEffect(() => {
       
@@ -82,7 +87,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   return (
     <TaskContext.Provider
       value={{
-        tasks,
         createTask,
         updateTask,
         updateTaskStatus,

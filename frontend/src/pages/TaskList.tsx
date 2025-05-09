@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom';
 import TaskCard from '../components/task/TaskCard';
 import SearchFilter from '../components/task/SearchFilter';
 import { Plus } from 'lucide-react';
+import { useRecoilValue } from 'recoil';
+import tasksAtom from '../store/tasksAtom';
 
 const TaskList = () => {
-  const { tasks } = useTask();
+  const tasks = useRecoilValue(tasksAtom);
   const [filteredTasks, setFilteredTasks] = useState(tasks);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

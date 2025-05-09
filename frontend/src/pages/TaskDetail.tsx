@@ -17,11 +17,14 @@ import { formatDate } from "../utils/dateUtils";
 import toast from "react-hot-toast";
 import apiClient from "../lib/api-client";
 import { TASKS_ROUTE } from "../utils/constant";
+import { useRecoilValue } from "recoil";
+import tasksAtom from "../store/tasksAtom";
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { tasks, updateTask, deleteTask } = useTask();
+  const { updateTask, deleteTask } = useTask();
+  const tasks = useRecoilValue(tasksAtom);
   const { user, users } = useAuth();
 
   const [task, setTask] = useState<any>(null);
@@ -36,7 +39,6 @@ const TaskDetail = () => {
       setEditedTask({ ...foundTask });
     } else {
       navigate("/tasks");
-      toast.error("Task not found");
     }
   }, [id, tasks, navigate]);
 

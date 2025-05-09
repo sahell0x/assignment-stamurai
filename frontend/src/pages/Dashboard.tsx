@@ -1,21 +1,34 @@
-import React, { useState } from 'react';
-import { useTask } from '../context/TaskContext';
+import React, { useState, useMemo } from 'react';
 import TaskCard from '../components/task/TaskCard';
 import StatCard from '../components/dashboard/StatCard';
 import { useAuth } from '../context/AuthContext';
 import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { useRecoilValue } from 'recoil';
+import tasksAtom from '../store/tasksAtom';
 
 const Dashboard = () => {
-  const { tasks } = useTask();
+  const tasks = useRecoilValue(tasksAtom);
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('assigned');
 
-  const assignedTasks = tasks.filter(task => task.assignedTo === user?.id);
-  const createdTasks = tasks.filter(task => task.createdBy === user?.id);
-  const overdueTasks = tasks.filter(task => {
-    const dueDate = new Date(task.dueDate);
-    return dueDate < new Date() && task.status !== 'completed';
-  });
+  const assignedTasks = useMemo(
+    () => tasks.filter(task => task.assignedTo === user?.id),
+    [tasks, user]
+  );
+
+  const createdTasks = useMemo(
+    () => tasks.filter(task => task.createdBy === user?.id),
+    [tasks, user]
+  );
+
+  const overdueTasks = useMemo(
+    () =>
+      tasks.filter(task => {
+        const dueDate = new Date(task.dueDate);
+        return dueDate < new Date() && task.status !== 'completed';
+      }),
+    [tasks]
+  );
 
   const totalAssigned = assignedTasks.length;
   const completedAssigned = assignedTasks.filter(task => task.status === 'completed').length;
@@ -23,7 +36,7 @@ const Dashboard = () => {
   const totalOverdue = overdueTasks.length;
 
   const getTabContent = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case 'assigned':
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -64,31 +77,31 @@ const Dashboard = () => {
       <div className="mb-6">
         <h1 className="text-2xl font-semibold mb-2">Dashboard</h1>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <StatCard 
-          title="Assigned Tasks" 
-          value={`${completedAssigned}/${totalAssigned}`} 
+        <StatCard
+          title="Assigned Tasks"
+          value={`${completedAssigned}/${totalAssigned}`}
           description="Tasks assigned to you"
           icon={<CheckCircle className="text-blue-500" />}
           color="bg-blue-50"
         />
-        <StatCard 
-          title="Created Tasks" 
-          value={totalCreated.toString()} 
+        <StatCard
+          title="Created Tasks"
+          value={totalCreated.toString()}
           description="Tasks you've created"
           icon={<Clock className="text-teal-500" />}
           color="bg-teal-50"
         />
-        <StatCard 
-          title="Overdue Tasks" 
-          value={totalOverdue.toString()} 
+        <StatCard
+          title="Overdue Tasks"
+          value={totalOverdue.toString()}
           description="Tasks past their due date"
           icon={<AlertCircle className="text-red-500" />}
           color="bg-red-50"
         />
       </div>
-      
+
       <div>
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex space-x-8">
@@ -124,7 +137,7 @@ const Dashboard = () => {
             </button>
           </nav>
         </div>
-        
+
         {getTabContent()}
       </div>
     </div>

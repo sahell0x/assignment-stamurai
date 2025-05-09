@@ -33,12 +33,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
 
     try{
+      updateTaskStatus(task.id, e.target.value);
       const response = await apiClient.patch(TASKS_STATUS_UPDATE_ROUTE,{taskId:task.id,taskUpdatedStatus:{
         status:e.target.value
       }},{withCredentials:true});
 
       if(response.status === 200){
-        updateTaskStatus(task.id, e.target.value);
+
         toast.success("Status updated successfully");
       }
     }catch{
