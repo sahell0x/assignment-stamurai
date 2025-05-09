@@ -44,7 +44,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const userInfo = useRecoilValue(userInfoAtom);
 
   useEffect(()=>{
-    console.log("tasks:",tasks);
   },[tasks]);
   
   useEffect(() => {
@@ -53,7 +52,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
      async ()=>{
         try{
           const response = await apiClient.get(GET_TASKS_ROUTE,{withCredentials:true});
-          console.log(response);
           if(response.status === 200){
             setTasks([...response.data as Task[]]);
           }

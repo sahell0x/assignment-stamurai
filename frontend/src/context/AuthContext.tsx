@@ -56,7 +56,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (response.status === 200) {
           const userData: User = response.data as User;
-          console.log(userData);
 
           setUser(userData);
         }
