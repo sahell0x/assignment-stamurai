@@ -9,11 +9,9 @@ import Register from './pages/Register';
 import TaskDetail from './pages/TaskDetail';
 import CreateTask from './pages/CreateTask';
 import Layout from './components/layout/Layout';
-import useSocketSetup from './hooks/useSocketSetup';
 
 
 function App() {
-  useSocketSetup();
   return (
     <Router>
       <AuthProvider>

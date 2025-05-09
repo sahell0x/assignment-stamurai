@@ -6,8 +6,11 @@ import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useRecoilValue } from 'recoil';
 import tasksAtom from '../store/tasksAtom';
 import userInfoAtom from '../store/userInfoAtom';
+import useSocketSetup from '../hooks/useSocketSetup';
 
 const Dashboard = () => {
+  useSocketSetup();
+
   const tasks = useRecoilValue(tasksAtom);
   const user = useRecoilValue(userInfoAtom);
   const [activeTab, setActiveTab] = useState('assigned');
