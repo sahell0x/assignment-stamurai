@@ -20,11 +20,11 @@ const socketSetup = (server: Server) => {
   io.on("connection", (socket: any) => {
     connection(socket, userSocketMap, io);
 
-    socket.on("assigned", (task:any) => {
-        const receiver = task?.assignedTo;
+    socket.on("assigned", (data:any) => {
+        const receiver = data.task?.assignedTo;
         const recieverSocketId = userSocketMap.get(receiver);
         if(recieverSocketId){
-            io.to(recieverSocketId).emit("assigned",task);
+            io.to(recieverSocketId).emit("assigned",data);
         }
     });
 
